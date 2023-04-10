@@ -1,36 +1,35 @@
-import posts from "./tuits.js";
-let tuits = posts;
+import * as tuitsDao from "./tuits-dao.js"
 
-const createTuit = (req, res) => {
+//import posts from "./tuits.js";
+//let tuits = posts;
+
+const createTuit = async (req, res) => {
   const newTuit = req.body;
-  newTuit._id = (new Date()).getTime()+'';
   newTuit.likes = 0;
   newTuit.dislikes = 0;
   newTuit.liked = true;
   newTuit.image = "http://www.nasa.gov/sites/default/files/images/nasaLogo-570x450.png";
-  tuits.push(newTuit);
-  res.json(newTuit);
+  const insertedTuit = await tuitsDao.createTuit(newTuit);  //
+  res.json(insertedTuit);
 }
 
-const findTuits  = (req, res) => {
+const findTuits  = async (req, res) => {
+  const tuits = await tuitsDao.findTuits()
   res.json(tuits);
 }
 
-const updateTuit = (req, res) => {
+const updateTuit = async (req, res) => {
   const tuitdIdToUpdate = req.params.tid;
   const updates = req.body;
-  const tuitIndex = tuits.findIndex((t) => t._id === tuitdIdToUpdate)
-  tuits[tuitIndex] = {...tuits[tuitIndex], ...updates};
-  res.sendStatus(200);
+  const status = await tuitsDao.updateTuit(tuitdIdToUpdate, updates);
+  res.sendStatus(status);
 }
 
-
-const deleteTuit = (req, res) => {
+const deleteTuit = async (req, res) => {
   const tuitdIdToDelete = req.params.tid;
-  tuits = tuits.filter((t) => t._id !== tuitdIdToDelete);
-  res.sendStatus(200);
+  const status = await tuitsDao.deleteTuit(tuitdIdToDelete);
+  res.sendStatus(status);
 }
-
 
 export default (app) => {
   app.post('/api/tuits', createTuit);
